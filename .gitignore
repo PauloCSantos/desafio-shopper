@@ -1,0 +1,17 @@
+### Armazenamento banco de dados
+database
+
+### Arquivos temporários
+*.DS_Store
+*Thumbs.db
+
+### Arquivos de log
+npm-debug.log
+server.log
+
+### Arquivos de configuração
+.env
+
+### Arquivos de build
+dist
+node_modules
