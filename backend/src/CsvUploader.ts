@@ -1,33 +1,33 @@
-import { CsvProcessor } from "./CsvProcessor";
-import { Request, Response } from "express";
-import fs from "fs";
+import multer, { StorageEngine } from "multer";
+import path from "path";
+import { mkdirp } from "mkdirp";
 
-export interface IUploader {
-  handleUpload(req: Request, res: Response): Promise<void>;
-}
+export class CsvUploader {
+  private storage: StorageEngine;
 
-export class CsvUploader implements IUploader {
-  constructor(private processor: CsvProcessor) {}
-  public async handleUpload(req: Request, res: Response): Promise<void> {
-    const { file } = req;
-    if (!file) {
-      res.status(400).json({ message: "Nenhum arquivo foi enviado." });
-      return;
-    }
+  constructor() {
+    mkdirp.sync("./uploads");
+    this.storage = multer.diskStorage({
+      destination: (req, file, cb) => {
+        // Define o diretório de destino como 'src/uploads'
+        cb(null, path.join(__dirname, "uploads"));
+      },
+      filename: (req, file, cb) => {
+        // Define o nome do arquivo (mantendo o nome original)
+        cb(null, file.originalname);
+      },
+    });
+  }
 
-    try {
-      const rowCount = await this.processor.processCsv();
-
-      const auxData = {
-        csvFileName: file.originalname,
-        totalRows: rowCount,
-      };
-
-      fs.writeFileSync("aux.json", JSON.stringify(auxData));
-      fs.unlinkSync(file.path);
-      res.status(200).json({ message: "Arquivo CSV carregado com sucesso." });
-    } catch (error) {
-      res.status(500).json({ message: "Erro ao processar o arquivo CSV" });
-    }
+  public uploadCsvFile() {
+    return multer({
+      storage: this.storage,
+      fileFilter(req, file, cb) {
+        if (!file.originalname.endsWith(".csv")) {
+          return cb(new Error("O arquivo não é um CSV válido."));
+        }
+        cb(null, true);
+      },
+    }).single("csvFile");
   }
 }
