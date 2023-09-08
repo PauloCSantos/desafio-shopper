@@ -1,67 +1,115 @@
-import mysql, { Connection, ResultSetHeader, RowDataPacket } from 'mysql2/promise';
+import mysql, {
+  Connection,
+  ResultSetHeader,
+  RowDataPacket,
+} from "mysql2/promise";
 
 class DatabaseManager {
-  private connection: Connection;
+  private connection?: Connection;
 
-  constructor(private config: any) {
-    this.connection = mysql.createPool(config);
+  constructor() {
+    // Não conecta automaticamente no construtor
   }
 
-  async connect(): Promise<void> {
-    try {
-      this.connection = await mysql.createConnection(this.config);
-      console.log('Conexão ao MySQL bem-sucedida.');
-    } catch (error) {
-      console.error('Erro ao conectar ao banco de dados:', error);
-      throw error;
+  private async ensureConnection(): Promise<void> {
+    if (!this.connection || !this.connection.threadId) {
+      try {
+        this.connection = await mysql.createConnection(DatabaseManager.dbConfig);
+        console.log("Conexão ao MySQL bem-sucedida.");
+      } catch (error) {
+        console.error("Erro ao conectar ao banco de dados:", error);
+        throw new Error("Erro ao conectar ao banco de dados");
+      }
     }
   }
 
-  async disconnect(): Promise<void> {
-    await this.connection.end();
-    console.log('Conexão ao MySQL encerrada.');
+  private async disconnect(): Promise<void> {
+    try {
+      if (this.connection) {
+        await this.connection.end();
+        console.log("Conexão ao MySQL encerrada.");
+      }
+    } catch (error) {
+      console.error("Erro ao encerrar a conexão ao banco de dados:", error);
+      throw new Error("Erro ao encerrar a conexão ao banco de dados");
+    }
   }
 
   async getAllProducts(): Promise<RowDataPacket[]> {
     try {
-      const [rows] = await this.connection.query<RowDataPacket[]>('SELECT * FROM products');
+      await this.ensureConnection();
+      const [rows] = await this.connection!.query<RowDataPacket[]>(
+        "SELECT * FROM products"
+      );
       return rows;
     } catch (error) {
-      console.error('Erro ao buscar produtos:', error);
-      throw error;
+      console.error("Erro ao buscar produtos:", error);
+      throw new Error("Erro ao buscar produtos");
     }
   }
 
   async getAllPacks(): Promise<RowDataPacket[]> {
     try {
-      const [rows] = await this.connection.query<RowDataPacket[]>('SELECT * FROM packs');
+      await this.ensureConnection();
+      const [rows] = await this.connection!.query<RowDataPacket[]>(
+        "SELECT * FROM packs"
+      );
       return rows;
     } catch (error) {
-      console.error('Erro ao buscar packs:', error);
-      throw error;
+      console.error("Erro ao buscar packs:", error);
+      throw Error("Erro ao buscar packs");
     }
   }
 
-  async updateProduct(productId: number, newValues: any): Promise<ResultSetHeader> {
+  async updateProduct(
+    updates: { productId: number; newValues: any }[]
+  ): Promise<void> {
     try {
-      const [result] = await this.connection.query<ResultSetHeader>('UPDATE products SET ? WHERE id = ?', [newValues, productId]);
-      console.log('Produto atualizado com sucesso.');
-      return result;
+      await this.ensureConnection();
+      for (const update of updates) {
+        const { productId, newValues } = update;
+        await this.connection!.query<ResultSetHeader>(
+          "UPDATE products SET ? WHERE id = ?",
+          [newValues, productId]
+        );
+      }
+      console.log("Produtos atualizados com sucesso.");
     } catch (error) {
-      console.error('Erro ao atualizar produto:', error);
-      throw error;
+      console.error("Erro ao atualizar produtos:", error);
+      throw new Error("Erro ao atualizar produtos");
     }
   }
 
-  async updatePack(packId: number, newValues: any): Promise<ResultSetHeader> {
+  async updatePack(
+    updates: { packId: number; newValues: any }[]
+  ): Promise<void> {
     try {
-      const [result] = await this.connection.query<ResultSetHeader>('UPDATE packs SET ? WHERE id = ?', [newValues, packId]);
-      console.log('Pack atualizado com sucesso.');
-      return result;
+      await this.ensureConnection();
+      for (const update of updates) {
+        const { packId, newValues } = update;
+        await this.connection!.query<ResultSetHeader>(
+          "UPDATE packs SET ? WHERE id = ?",
+          [newValues, packId]
+        );
+      }
+      console.log("Packs atualizados com sucesso.");
     } catch (error) {
-      console.error('Erro ao atualizar pack:', error);
-      throw error;
+      console.error("Erro ao atualizar packs:", error);
+      throw new Error("Erro ao atualizar packs");
     }
+  }
+
+  // Configurações do banco de dados (estáticas)
+  private static dbConfig: any = {
+    host: "172.17.0.2",
+    user: "root",
+    password: "shopper123",
+    database: "shopperdatabase",
+  };
+
+  // Método para desconectar manualmente
+  async disconnectManually(): Promise<void> {
+    await this.disconnect();
   }
 }
 

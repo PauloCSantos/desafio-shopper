@@ -3,13 +3,14 @@ import { CsvUploader } from "./CsvUploader";
 import { CsvProcessor } from "./CsvProcessor";
 import fs from "fs";
 import path from "path";
+import DatabaseManager from "./DatabaseManager";
 
 const app = express();
 const port = 3000;
 
 const csvUploader = new CsvUploader();
-const csvProcessor = new CsvProcessor();
-
+const bd = new DatabaseManager();
+const csvProcessor = new CsvProcessor(bd);
 app.post(
   "/upload",
   csvUploader.uploadCsvFile(),
@@ -46,14 +47,20 @@ app.get("/process", async (req: Request, res: Response) => {
   }
 
   try {
-    const rowCount = await csvProcessor.processCsv(filePath); // Use a função processCsv da classe CsvProcessor
-
+    const rowCount = await csvProcessor.validateCsv(filePath);
     res.status(200).json({ message: "Processamento concluído.", rowCount });
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao processar o arquivo CSV." });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+    //res.status(500).json({ error });
   }
 });
 
 app.listen(port, () => {
   console.log(`API está ouvindo na porta ${port}`);
+});
+
+process.on("SIGINT", async () => {
+  console.log("Recebeu um sinal de interrupção (Ctrl+C).");
+  await bd.disconnectManually();
+  process.exit(0);
 });
