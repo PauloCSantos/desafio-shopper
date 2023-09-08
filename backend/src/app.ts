@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import cors from 'cors';
 import { CsvUploader } from "./CsvUploader";
 import { CsvProcessor } from "./CsvProcessor";
 import fs from "fs";
@@ -6,6 +7,11 @@ import path from "path";
 import DatabaseManager from "./DatabaseManager";
 
 const app = express();
+app.use(cors({
+  origin: '*', 
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
+  credentials: false,
+}))
 const port = 3000;
 
 const csvUploader = new CsvUploader();

@@ -101,7 +101,7 @@ class DatabaseManager {
 
   // Configurações do banco de dados (estáticas)
   private static dbConfig: any = {
-    host: "172.17.0.2",
+    host: "172.17.0.3",
     user: "root",
     password: "shopper123",
     database: "shopperdatabase",
