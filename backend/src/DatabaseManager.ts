@@ -14,7 +14,9 @@ class DatabaseManager {
   private async ensureConnection(): Promise<void> {
     if (!this.connection || !this.connection.threadId) {
       try {
-        this.connection = await mysql.createConnection(DatabaseManager.dbConfig);
+        this.connection = await mysql.createConnection(
+          DatabaseManager.dbConfig
+        );
         console.log("Conexão ao MySQL bem-sucedida.");
       } catch (error) {
         console.error("Erro ao conectar ao banco de dados:", error);
@@ -69,7 +71,7 @@ class DatabaseManager {
       for (const update of updates) {
         const { productId, newValues } = update;
         await this.connection!.query<ResultSetHeader>(
-          "UPDATE products SET ? WHERE id = ?",
+          "UPDATE products SET sales_price = ? WHERE code = ?",
           [newValues, productId]
         );
       }
@@ -88,7 +90,7 @@ class DatabaseManager {
       for (const update of updates) {
         const { packId, newValues } = update;
         await this.connection!.query<ResultSetHeader>(
-          "UPDATE packs SET ? WHERE id = ?",
+          "UPDATE packs SET ? WHERE code = ?",
           [newValues, packId]
         );
       }

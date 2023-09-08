@@ -12,7 +12,6 @@ const ManagerFiles = () => {
   };
 
   useEffect(() => {
-    // Quando o componente renderizar, instancie o componente FileOptions
     setNome("");
   }, []);
 

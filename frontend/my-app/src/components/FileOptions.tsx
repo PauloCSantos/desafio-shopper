@@ -43,6 +43,10 @@ const FileOptions = ({ nome }: fileoptionsProps) => {
         if (data) {
           console.log(data); // Imprime a mensagem do corpo da resposta, se existir
           setDataList(data);
+          const allValid = data.rowCount.every(
+            (item: any) => item.observation.length === 0
+          );
+          setValidado(allValid);
         } else {
           alert("Resposta não contém uma mensagem.");
         }
@@ -50,20 +54,53 @@ const FileOptions = ({ nome }: fileoptionsProps) => {
       .catch((error) => {
         alert("Erro ao enviar o arquivo:" + error);
       });
-    setValidado(true);
   };
 
   const handleAtualizar = () => {
-    // Fazer algo com o nome
+    fetch(`http://localhost:3000/update?fileName=${nome}`, {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((errorData) => {
+            if (errorData.message) {
+              throw new Error(errorData.message);
+            } else {
+              throw new Error("Erro desconhecido ao enviar o arquivo.");
+            }
+          });
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data) {
+          console.log(data);
+          alert(data.message);
+          window.location.href = "/";
+        } else {
+          alert("Resposta não contém uma mensagem.");
+        }
+      })
+      .catch((error) => {
+        alert("Erro ao enviar o arquivo:" + error);
+      });
   };
 
   return (
     <div>
-      <h1>{nome}</h1>
+      <h1 className="mt-1">Nome do arquivo enviado: {nome}</h1>
       {validado ? (
-        <button disabled>Atualizar</button>
+        //@ts-ignore
+        <button className="rounded-lg bg-blue-400 text-black text-center w-auto px-2 py-2 mt-1 ml-2" disabled={validado === false} onClick={handleAtualizar}>
+          Atualizar
+        </button>
       ) : (
-        <button onClick={handleValidar}>Validar</button>
+        <button
+          className="rounded-lg bg-blue-400 text-black text-center w-auto px-2 py-2 mt-1 ml-2"
+          onClick={handleValidar}
+        >
+          Validar
+        </button>
       )}
       <div>
         {dataList && (
