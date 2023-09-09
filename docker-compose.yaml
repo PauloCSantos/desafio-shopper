@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  backend:
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/app
+
+  frontend:
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    ports:
+      - 3003:3000
+    volumes:
+      - .:/app
+
+  mysql:
+    build:
+      context: ./mysql/
+      dockerfile: Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - .database:/var/lib/mysql
+    ports:
+      - 3306:3306

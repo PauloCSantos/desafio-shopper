@@ -15,7 +15,6 @@ app.use(
   })
 );
 const port = 3000;
-
 const csvUploader = new CsvUploader();
 const bd = new DatabaseManager();
 const csvProcessor = new CsvProcessor(bd);
@@ -95,6 +94,7 @@ app.get("/update", async (req: Request, res: Response) => {
 
     await bd.updateProduct(products);
     res.status(200).json({ message: "Arquivo processado com sucesso." });
+    await updateAllpacks(products);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Falha ao persistir dados" });
@@ -125,3 +125,41 @@ process.on("SIGINT", async () => {
   await bd.disconnectManually();
   process.exit(0);
 });
+
+async function updateAllpacks(prod: any) {
+  // Obter todos os packs
+  const itemsUpdate = [];
+
+  const packs = await bd.getAllPacks();
+
+  // // Iterar pelos packs
+  for (const pack of packs) {
+    // Obter o produto do pack
+    const product = prod.find(
+      (product: any) => product.productId === pack.product_id
+    );
+    if (product) {
+      itemsUpdate.push({
+        productId: pack.pack_id,
+        newValues: pack.qty * product.newValues,
+        idProd: pack.product_id,
+      });
+    }
+  }
+  console.log(itemsUpdate);
+
+  await bd.updateProduct(itemsUpdate);
+}
+
+function findIndexes(arr: any, v: any) {
+  const indexes = [];
+  console.log("asdsad");
+  console.log(arr, v);
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i].pack_id === v) {
+      indexes.push(i);
+    }
+  }
+
+  return indexes;
+}
