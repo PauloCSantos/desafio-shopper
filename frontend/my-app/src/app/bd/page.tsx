@@ -6,7 +6,7 @@ const Bd = () => {
   const [packs, setPacks] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/bdvalues`)
+    fetch(`http://localhost:4000/bdvalues`)
       .then((response) => response.json())
       .then((data) => {
         setProducts(data.products);

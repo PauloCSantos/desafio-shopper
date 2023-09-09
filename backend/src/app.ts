@@ -14,7 +14,7 @@ app.use(
     credentials: false,
   })
 );
-const port = 3000;
+const port = 4000;
 const csvUploader = new CsvUploader();
 const bd = new DatabaseManager();
 const csvProcessor = new CsvProcessor(bd);
@@ -27,10 +27,7 @@ app.post(
     if (!file) {
       return res.status(400).json({ message: "Nenhum arquivo foi enviado." });
     }
-
     try {
-      // O arquivo já foi salvo na pasta 'uploads' pelo CsvUploader
-      // Responda com sucesso
       res
         .status(200)
         .json({ message: "Arquivo CSV carregado e salvo com sucesso." });
@@ -40,7 +37,7 @@ app.post(
   }
 );
 
-// Endpoint para processar o arquivo CSV
+
 app.get("/process", async (req: Request, res: Response) => {
   const { fileName } = req.query;
 
@@ -79,13 +76,13 @@ app.get("/update", async (req: Request, res: Response) => {
   try {
     const fileContents = fs.readFileSync(filePath, "utf-8");
     const headLines = fileContents.split("\r");
-    const lines = headLines.slice(1); // Remover a primeira linha (cabeçalho)
+    const lines = headLines.slice(1); 
 
     const products = lines
-      .map((line) => line.trim()) // Remover espaços em branco no início e no fim
-      .filter((line) => line.length > 0) // Filtrar linhas em branco
+      .map((line) => line.trim()) 
+      .filter((line) => line.length > 0) 
       .map((line) => {
-        const [productCode, newPrice] = line.split(","); // Separar os valores por vírgula
+        const [productCode, newPrice] = line.split(","); 
         return {
           productId: parseInt(productCode),
           newValues: parseFloat(newPrice),
@@ -127,14 +124,14 @@ process.on("SIGINT", async () => {
 });
 
 async function updateAllpacks(prod: any) {
-  // Obter todos os packs
+ 
   const itemsUpdate = [];
 
   const packs = await bd.getAllPacks();
 
-  // // Iterar pelos packs
+  
   for (const pack of packs) {
-    // Obter o produto do pack
+    
     const product = prod.find(
       (product: any) => product.productId === pack.product_id
     );

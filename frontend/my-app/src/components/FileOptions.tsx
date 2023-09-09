@@ -24,7 +24,7 @@ const FileOptions = ({ nome }: fileoptionsProps) => {
   const [dataList, setDataList] = useState<DataListType | null>(null);
 
   const handleValidar = () => {
-    fetch(`http://localhost:3000/process?fileName=${nome}`, {
+    fetch(`http://localhost:4000/process?fileName=${nome}`, {
       method: "GET",
     })
       .then((response) => {
@@ -57,7 +57,7 @@ const FileOptions = ({ nome }: fileoptionsProps) => {
   };
 
   const handleAtualizar = () => {
-    fetch(`http://localhost:3000/update?fileName=${nome}`, {
+    fetch(`http://localhost:4000/update?fileName=${nome}`, {
       method: "GET",
     })
       .then((response) => {

@@ -1,31 +1,47 @@
 version: "3"
 
 services:
-  backend:
-    build:
-      context: ./backend/
-      dockerfile: Dockerfile
-    ports:
-      - 3000:3000
-    volumes:
-      - .:/app
-
-  frontend:
-    build:
-      context: ./frontend/
-      dockerfile: Dockerfile
-    ports:
-      - 3003:3000
-    volumes:
-      - .:/app
-
   mysql:
+    container_name: desafioshopper-mysql
     build:
       context: ./mysql/
       dockerfile: Dockerfile
-    environment:
-      MYSQL_ROOT_PASSWORD: password
     volumes:
-      - .database:/var/lib/mysql
+      - ./mysql/database:/var/lib/mysql
     ports:
-      - 3306:3306
+      - "3306:3306"
+    networks:
+      - app-network 
+
+  frontend:
+    container_name: desafioshopper-frontend
+    build:
+      context: ./frontend/my-app
+      dockerfile: Dockerfile
+      args:
+        - NPM_INSTALL=true
+    ports:
+      - 3000:3000
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+  backend:
+    container_name: desafioshopper-backend
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+      args:
+        - NPM_INSTALL=true
+    environment:
+      MYSQL_HOST: "mysql"
+    ports:
+      - 4000:4000
+    depends_on:
+      - mysql
+    networks:
+      - app-network 
+
+networks:
+  app-network: 

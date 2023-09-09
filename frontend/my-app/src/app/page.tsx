@@ -1,4 +1,3 @@
-import InputUpload from "@/components/InputUpload";
 import ManagerFiles from "@/components/ManagerFiles";
 
 export default function Home() {

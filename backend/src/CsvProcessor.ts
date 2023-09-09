@@ -49,7 +49,6 @@ export class CsvProcessor {
 
           const csvNewPrice = parseFloat(columns[1].trim());
 
-          // Verifica se os preços estão preenchidos e são valores numéricos válidos
           if (isNaN(csvNewPrice) || csvNewPrice <= 0) {
             validatedProduct.observation.push(
               "O novo preço não é um valor numérico válido."
@@ -57,7 +56,6 @@ export class CsvProcessor {
           } else {
             validatedProduct.new_price = csvNewPrice;
 
-            // Verifica se o novo preço respeita as regras do cenário
             const salesPrice = parseFloat(product.sales_price);
             const costPrice = parseFloat(product.cost_price);
 

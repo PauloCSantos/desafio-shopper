@@ -10,18 +10,17 @@ const InputUpload = ({ handleUpload }: InputUploadProps) => {
 
   const handleUploads = (event: any) => {
     const formData = new FormData();
-    event.preventDefault(); // Evita o envio padrão do formulário
+    event.preventDefault(); 
     formData.append("csvFile", file);
-    // Resto do código
+   
 
-    fetch("http://localhost:3000/upload", {
+    fetch("http://localhost:4000/upload", {
       method: "POST",
       body: formData,
     })
       .then((response) => {
         if (!response.ok) {
           return response.json().then((errorData) => {
-            // Captura a mensagem de erro específica
             if (errorData.message) {
               throw new Error(errorData.message);
             } else {
@@ -32,11 +31,11 @@ const InputUpload = ({ handleUpload }: InputUploadProps) => {
         //@ts-ignore
         const fileName = formData.get("csvFile").name;
         handleUpload(fileName);
-        return response.json(); // Converte o corpo da resposta para JSON
+        return response.json();
       })
       .then((data) => {
         if (data.message) {
-          alert(data.message); // Imprime a mensagem do corpo da resposta, se existir
+          alert(data.message); 
         } else {
           alert("Resposta não contém uma mensagem.");
         }
@@ -60,7 +59,7 @@ const InputUpload = ({ handleUpload }: InputUploadProps) => {
           accept=".csv"
           multiple={false}
           className="w-full"
-          onChange={handleFileChange} // Adiciona um manipulador para alterações de arquivo
+          onChange={handleFileChange} 
         />
         <button
           type="submit"

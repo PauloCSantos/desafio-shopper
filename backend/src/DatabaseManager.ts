@@ -8,7 +8,7 @@ class DatabaseManager {
   private connection?: Connection;
 
   constructor() {
-    // Não conecta automaticamente no construtor
+   
   }
 
   private async ensureConnection(): Promise<void> {
@@ -101,15 +101,13 @@ class DatabaseManager {
     }
   }
 
-  // Configurações do banco de dados (estáticas)
   private static dbConfig: any = {
-    host: "172.17.0.3",
+    host: "mysql",
     user: "root",
     password: "shopper123",
     database: "shopperdatabase",
   };
 
-  // Método para desconectar manualmente
   async disconnectManually(): Promise<void> {
     await this.disconnect();
   }
